@@ -65,7 +65,7 @@ $list | foreach-object {
         $ssh_stream.WriteLine("exit")
         Start-Sleep -Seconds 1
         
-        $ssh_stream.WriteLine("show running-config | include username netwrix5")
+        $ssh_stream.WriteLine("show running-config | include username $new_user")
         Start-Sleep -Seconds 1
         $output += $ssh_stream.Read()
     
