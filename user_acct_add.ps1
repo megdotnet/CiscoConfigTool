@@ -20,18 +20,26 @@ $new_user = $new_creds.username
 $secureStringPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($new_creds.password)
 $new_pass = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($secureStringPtr)
 
-
 # import the connection list
 $list = import-csv -path $list_fp | where-object { $_.SSH -eq $true }
 
 # declare an empty error list
 $error_list = @()
 
+# are you sure?  
+Write-Host "`nAdding/modifying user " -NoNewline
+Write-Host $new_user -NoNewline -ForegroundColor DarkGreen
+Write-Host " on $($list.Count) devices."
+$prompt = Read-Host -Prompt "Continue? [y]"
+If ($prompt -ne "y") {
+    exit
+}
+
 # loop through each of the entries in the list
 $list | foreach-object {
 
     $hostname = $_.Hostname
-    $ip_address = $_.IP_Address
+    $ip_address = $_.IP_Address    
 
     # clear any old sessions, just in case...
     get-sshSession | Remove-SSHSession | Out-Null
