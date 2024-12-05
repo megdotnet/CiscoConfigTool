@@ -13,8 +13,18 @@
 . .\config.ps1
 
 # user account to add/modify on devices
-$new_creds = Get-Secret $working_user
-$new_user = $new_creds.username
+$new_creds = Get-Secret $working_user -ErrorAction SilentlyContinue
+if ($new_creds) {
+    $new_user = $new_creds.username
+    Write-Host $new_user
+}
+else {
+    Write-Host "`nError retrieving credentials for " -NoNewline -ForegroundColor Red
+    Write-Host $working_user -NoNewline
+    Write-Host " from secret store." -ForegroundColor Red
+    Write-Host "Exiting script...`n" -ForegroundColor Red
+    exit
+}
 
 # convert password to plaintext
 $secureStringPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($new_creds.password)
