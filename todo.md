@@ -9,6 +9,7 @@
 * [ ] rework conx_test.ps1 to work off of the list
 * [ ] fix the id column in conx_list.csv
 * [ ] fix where it displays the new password in plaintext on the output 🤦‍♀️
+* [ ] need more error handling for when an ssh connection fails
 
 
 $ssh_stream.WriteLine("skip-page-display")    <------------------------------------------   don't forget that this exists...
