@@ -72,30 +72,37 @@ $list | foreach-object {
     }
     
     if ($ssh_stream) {
-        Write-Host "Adding user: $new_user"
-        $ssh_stream.WriteLine("configure terminal")
-        Start-Sleep -Seconds 1
-        $output = $ssh_stream.Read()
+        try {
+            Write-Host "Adding user: $new_user"
+            $ssh_stream.WriteLine("configure terminal")
+            Start-Sleep -Seconds 1
+            $output = $ssh_stream.Read()
+            
+            $ssh_stream.WriteLine("username $new_user privilege 15 secret 0 $new_pass")
+            Start-Sleep -Seconds 1
+            
+            $ssh_stream.WriteLine("exit")
+            Start-Sleep -Seconds 1
+            
+            $ssh_stream.WriteLine("show running-config | include username $new_user")
+            Start-Sleep -Seconds 1
+            $output += $ssh_stream.Read()
         
-        $ssh_stream.WriteLine("username $new_user privilege 15 secret 0 $new_pass")
-        Start-Sleep -Seconds 1
+            $ssh_stream.WriteLine("copy running-config startup-config")
+            Start-Sleep -Seconds 1
+            $output += $ssh_stream.Read()
         
-        $ssh_stream.WriteLine("exit")
-        Start-Sleep -Seconds 1
-        
-        $ssh_stream.WriteLine("show running-config | include username $new_user")
-        Start-Sleep -Seconds 1
-        $output += $ssh_stream.Read()
+            $ssh_stream.WriteLine("`n")
+            Start-Sleep -Seconds 10
+            $output += $ssh_stream.Read()
     
-        $ssh_stream.WriteLine("copy running-config startup-config")
-        Start-Sleep -Seconds 1
-        $output += $ssh_stream.Read()
-    
-        $ssh_stream.WriteLine("`n")
-        Start-Sleep -Seconds 10
-        $output += $ssh_stream.Read()
-
-        $output
+            $output    
+        }
+        catch {
+            $error_msg = "Error connecting to $hostname"
+            Write-Host $error_msg -ForegroundColor Red
+            $error_list += $error_msg
+        }        
     }      
     else {
         $error_msg = "Error creating Stream for $hostname"
